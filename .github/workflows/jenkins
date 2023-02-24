@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout code') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Set up Python Env') {
+            steps {
+                bat 'python -V'
+                bat 'echo "Setting up Python environment"'
+                bat 'python -m venv myenv'
+                bat 'myenv\\Scripts\\activate.bat'
+            }
+        }
+        
+        stage('Install dependencies') {
+            steps {
+                bat 'pip install black'
+            }
+        }
+        
+        stage('Run Black') {
+            steps {
+                bat 'black .'
+            }
+        }
+
+        stage('Create Pull Request') {
+            steps {
+                withCredentials([string(credentialsId: 'my-github-secret', variable: 'GITHUB_TOKEN'), gitUsernamePassword(credentialsId: 'github-talha-credentials', gitToolName: 'git-tool')]) {
+                    bat '''
+                        git checkout -b jenkins_black_formatting
+                        git add .
+                        git commit -m "Applying Black formatting using jenkins pipeline"
+                        git push -u origin jenkins_black_formatting
+                        curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/NUCES-ISB/i190413-i190582-git-sim/pulls \
+                        -d '{"title":"Applying Black formatting using jenkins pipeline", "head":"jenkins_black_formatting", "base":"talhas_branch"}'
+                    '''
+                }
+            }
+        }
+    }
+}
