@@ -148,7 +148,6 @@ class Stash(GitSimBaseCommand):
         secondColumnArrowMap={},
         thirdColumnArrowMap={},
     ):
-
         if self.command in [StashSubCommand.POP, StashSubCommand.APPLY]:
             for x in self.repo.index.diff(None):
                 thirdColumnFileNames.add(x.a_path)

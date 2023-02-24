@@ -953,7 +953,6 @@ class GitSimBaseCommand(m.MovingCameraScene):
         thirdColumnTitle,
         horizontal2,
     ):
-
         for i, f in enumerate(firstColumnFileNames):
             text = (
                 m.Text(
